@@ -33,6 +33,8 @@
   --primary-light: rgba(146, 119, 255, 0.1); /* Added missing primary-light variable */
   --primary-transparent: rgba(146, 119, 255, 0.2);
   --primary: #9277FF;
+  --logout-btn-bg: #EF4444;  /* Red background for logout button */
+  --logout-btn-hover: #dc2626;
 }
 
 /* Light mode with blue background */
@@ -45,6 +47,8 @@
   --primary-light: rgba(124, 93, 250, 0.1); /* Added missing primary-light variable */
   --foreground: #1a202c;  /* Dark text color */
   --text-secondary: #4a5568;  /* Darker secondary text */
+  --logout-btn-bg: #EF4444;  /* Red background for logout button */
+  --logout-btn-hover: #dc2626; /* Darker red for logout button hover */
 }
 
 /* Prevent transitions during theme toggle */
@@ -55,6 +59,17 @@
 /* Apply fade animation for theme transition */
 body {
   transition: background-color 0.5s ease;
+}
+
+/* Adding specific styling for logout button */
+.logout-btn {
+  background-color: var(--logout-btn-bg) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.logout-btn:hover {
+  background-color: var(--logout-btn-hover) !important;
 }
 
 /* Global theme transition for all elements */

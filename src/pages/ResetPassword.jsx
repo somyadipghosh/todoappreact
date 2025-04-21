@@ -114,6 +114,7 @@ const ResetPassword = () => {
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
+              showToggle
             />
             <p className="text-xs text-secondary mt-1">
               Must be at least 6 characters long.
@@ -131,6 +132,7 @@ const ResetPassword = () => {
               placeholder="••••••••"
               value={formData.confirmPassword}
               onChange={handleChange}
+              showToggle
             />
           </div>
 
@@ -157,4 +159,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword; 
+export default ResetPassword;

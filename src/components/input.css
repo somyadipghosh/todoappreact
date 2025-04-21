@@ -1,0 +1,51 @@
+/* Input component styles */
+
+/* Input wrapper for proper icon positioning */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+}
+
+/* Password input styles */
+.password-input {
+  padding-right: 35px !important; /* Ensure enough space for the icon */
+}
+
+/* Password toggle icon container */
+.password-toggle-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Prevent the icon from being affected by any transitions */
+.password-toggle-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-icon:hover svg {
+  color: #4b5563;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .password-toggle-icon svg {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .password-toggle-icon:hover svg {
+  color: #d1d5db;
+}

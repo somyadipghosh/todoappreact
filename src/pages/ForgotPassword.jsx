@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { resetPassword } from '../lib/supabase';
 import Input from '../components/Input';
@@ -9,6 +9,19 @@ const ForgotPassword = () => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Force dark mode for auth pages
+  useEffect(() => {
+    // Apply dark theme to the document for this page only
+    document.body.setAttribute('data-theme', 'dark');
+    document.body.classList.add('auth-dark-mode');
+    
+    // Clean up on unmount
+    return () => {
+      document.body.classList.remove('auth-dark-mode');
+      // When leaving this page, the theme will be reset by other pages
+    };
+  }, []);
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -116,4 +129,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;

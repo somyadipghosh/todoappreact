@@ -206,18 +206,19 @@ const Settings = () => {
           </div>
           
           <div className="flex-items-center gap-md">
-            <Link to="/dashboard" className="text-secondary hover:text-foreground transition-colors flex-items-center gap-sm" style={{ padding: '0.5rem', borderRadius: '9999px' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            <Link to="/dashboard" className="header-nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
               </svg>
-              <span className="hidden-mobile">Dashboard</span>
+              <span>Dashboard</span>
             </Link>
             
             <Button 
               onClick={handleSignOut}
               variant="secondary"
-              className="flex-items-center gap-sm"
+              className="flex-items-center gap-sm logout-btn"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -438,6 +439,7 @@ const Settings = () => {
                           onChange={handleChange}
                           placeholder="Enter your current password"
                           required
+                          showToggle
                         />
                       </div>
                       <div className="form-group">
@@ -450,6 +452,7 @@ const Settings = () => {
                           onChange={handleChange}
                           placeholder="Enter new password"
                           required
+                          showToggle
                         />
                       </div>
                       <div className="form-group">
@@ -462,6 +465,7 @@ const Settings = () => {
                           onChange={handleChange}
                           placeholder="Confirm new password"
                           required
+                          showToggle
                         />
                       </div>
                       <div style={{ marginTop: '0.5rem' }}>

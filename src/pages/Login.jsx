@@ -8,12 +8,25 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // can be email or username
     password: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(location?.state?.message || '');
+
+  // Force dark mode for auth pages
+  useEffect(() => {
+    // Apply dark theme to the document for this page only
+    document.body.setAttribute('data-theme', 'dark');
+    document.body.classList.add('auth-dark-mode');
+    
+    // Clean up on unmount
+    return () => {
+      document.body.classList.remove('auth-dark-mode');
+      // When leaving this page, the theme will be reset by other pages
+    };
+  }, []);
 
   useEffect(() => {
     // Check if there's already a session
@@ -45,6 +58,11 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear errors when user types
+    if (error) {
+      setError(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -54,9 +72,12 @@ const Login = () => {
 
     try {
       // Log the attempt (for debugging)
-      console.log('Attempting to sign in with:', { email: formData.email, password: '****' });
+      console.log('Attempting to sign in with:', { identifier: formData.identifier, password: '****' });
       
-      const { data, error } = await signIn(formData);
+      const { data, error } = await signIn({
+        identifier: formData.identifier,
+        password: formData.password
+      });
       
       if (error) {
         console.error('Sign in error details:', error);
@@ -146,15 +167,15 @@ const Login = () => {
         
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email" className="form-label">Email address</label>
+            <label htmlFor="identifier" className="form-label">Username or Email</label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
+              id="identifier"
+              name="identifier"
+              type="text"
+              autoComplete="username"
               required
-              placeholder="name@example.com"
-              value={formData.email}
+              placeholder="Enter username or email"
+              value={formData.identifier}
               onChange={handleChange}
             />
           </div>
@@ -173,6 +194,7 @@ const Login = () => {
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
+              showToggle
             />
           </div>
 
@@ -220,5 +242,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
- 
+export default Login;

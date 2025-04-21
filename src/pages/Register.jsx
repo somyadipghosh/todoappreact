@@ -1,24 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signUp } from '../lib/supabase';
+import { signUp, supabase } from '../lib/supabase';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [checkingUnique, setCheckingUnique] = useState(false);
+
+  // Force dark mode for auth pages
+  useEffect(() => {
+    // Apply dark theme to the document for this page only
+    document.body.setAttribute('data-theme', 'dark');
+    document.body.classList.add('auth-dark-mode');
+    
+    // Clean up on unmount
+    return () => {
+      document.body.classList.remove('auth-dark-mode');
+      // When leaving this page, the theme will be reset by other pages
+    };
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear errors when user types
+    if (error) {
+      setError(null);
+    }
+  };
+
+  // Check if username or email already exists
+  const checkUniqueCredentials = async () => {
+    setCheckingUnique(true);
+    
+    try {
+      // Check if username exists
+      const { data: usernameData, error: usernameError } = await supabase
+        .from('user_profiles')
+        .select('username')
+        .eq('username', formData.username)
+        .maybeSingle();
+      
+      if (usernameError) throw usernameError;
+      
+      if (usernameData) {
+        setError('Username is already taken. Please choose a different username.');
+        setCheckingUnique(false);
+        return false;
+      }
+      
+      // Check if email exists
+      const { data: emailData, error: emailError } = await supabase
+        .from('user_profiles')
+        .select('email')
+        .eq('email', formData.email)
+        .maybeSingle();
+        
+      if (emailError) throw emailError;
+      
+      if (emailData) {
+        setError('Email is already registered. Please use a different email or try logging in.');
+        setCheckingUnique(false);
+        return false;
+      }
+      
+      // Both username and email are unique
+      return true;
+    } catch (error) {
+      console.error('Error checking unique credentials:', error);
+      setCheckingUnique(false);
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -30,16 +94,37 @@ const Register = () => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // First check if username and email are unique
+      const isUnique = await checkUniqueCredentials();
+      if (!isUnique) {
+        setLoading(false);
+        return;
+      }
+      
+      // Proceed with signup if credentials are unique
       const { data, error } = await signUp({
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        username: formData.username
       });
       
       if (error) {
-        throw error;
+        // Check for specific Supabase error codes and provide user-friendly messages
+        if (error.message?.includes('email')) {
+          throw new Error('This email address is already registered. Please try logging in or use a different email.');
+        } else if (error.message?.includes('username')) {
+          throw new Error('This username is already taken. Please choose a different username.');
+        } else {
+          throw error;
+        }
       }
       
       navigate('/login', { 
@@ -78,6 +163,20 @@ const Register = () => {
         
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
+            <label htmlFor="username" className="form-label">Username</label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              placeholder="yourname"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
+          
+          <div className="form-group">
             <label htmlFor="email" className="form-label">Email address</label>
             <Input
               id="email"
@@ -102,6 +201,7 @@ const Register = () => {
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
+              showToggle
             />
             <p className="text-xs text-secondary mt-1">
               Must be at least 6 characters long.
@@ -119,21 +219,22 @@ const Register = () => {
               placeholder="••••••••"
               value={formData.confirmPassword}
               onChange={handleChange}
+              showToggle
             />
           </div>
 
           <Button
             type="submit"
             className="btn-block mt-4"
-            disabled={loading}
+            disabled={loading || checkingUnique}
           >
-            {loading ? (
+            {loading || checkingUnique ? (
               <>
                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Signing up...
+                {checkingUnique ? 'Checking...' : 'Signing up...'}
               </>
             ) : (
               'Sign up'
@@ -156,4 +257,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;

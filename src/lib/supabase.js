@@ -20,24 +20,83 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Authentication helpers
 export const signUp = async ({ email, password, username }) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        username,
-      },
-    },
-  });
-  return { data, error };
-};
-
-export const signIn = async ({ email, password }) => {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    // First, sign up the user with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username,
+        },
+      },
     });
+    
+    if (error) throw error;
+    
+    // After successful signup, create a profile in our custom table
+    if (data?.user) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert([
+          {
+            id: data.user.id,
+            username: username,
+            email: email
+          }
+        ]);
+        
+      if (profileError) {
+        console.error('Error creating user profile:', profileError);
+        // We don't throw here to avoid blocking signup if profile creation fails
+        // The profile can be created later
+      }
+    }
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error('Error during signup:', err);
+    return { data: null, error: err };
+  }
+};
+
+export const signIn = async ({ identifier, password }) => {
+  try {
+    // Check if the identifier is an email (contains @ symbol)
+    const isEmail = identifier.includes('@');
+    
+    let result;
+    
+    if (isEmail) {
+      // Login with email
+      result = await supabase.auth.signInWithPassword({
+        email: identifier,
+        password,
+      });
+    } else {
+      // First, find the user with this username
+      const { data: userData, error: userError } = await supabase
+        .from('user_profiles')
+        .select('email')
+        .eq('username', identifier)
+        .single();
+      
+      if (userError || !userData) {
+        console.error('Username lookup error:', userError);
+        return { 
+          data: null, 
+          error: { message: 'Username not found. Please check your credentials.' } 
+        };
+      }
+      
+      // Then login with the found email
+      result = await supabase.auth.signInWithPassword({
+        email: userData.email,
+        password,
+      });
+    }
+    
+    const { data, error } = result;
     
     if (error) {
       console.error('Sign in error:', error);
@@ -62,17 +121,67 @@ export const getCurrentUser = async () => {
 };
 
 export const updateProfile = async (updates) => {
-  const { data, error } = await supabase.auth.updateUser({
-    data: updates,
-  });
-  return { data, error };
+  try {
+    // First update the user metadata in Auth
+    const { data, error } = await supabase.auth.updateUser({
+      data: updates,
+    });
+    
+    if (error) throw error;
+    
+    // Then update the user_profiles table if username is being updated
+    if (updates.username && data?.user) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          username: updates.username,
+          updated_at: new Date()
+        })
+        .eq('id', data.user.id);
+      
+      if (profileError) {
+        console.error('Error updating user profile:', profileError);
+        return { data, error: profileError };
+      }
+    }
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    return { data: null, error: err };
+  }
 };
 
 export const updateEmail = async (newEmail) => {
-  const { data, error } = await supabase.auth.updateUser({
-    email: newEmail,
-  });
-  return { data, error };
+  try {
+    // First update the user email in Auth
+    const { data, error } = await supabase.auth.updateUser({
+      email: newEmail,
+    });
+    
+    if (error) throw error;
+    
+    // Then update the user_profiles table
+    if (data?.user) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          email: newEmail,
+          updated_at: new Date()
+        })
+        .eq('id', data.user.id);
+      
+      if (profileError) {
+        console.error('Error updating email in profile:', profileError);
+        // We don't throw here because the Auth email update already succeeded
+      }
+    }
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error('Error updating email:', err);
+    return { data: null, error: err };
+  }
 };
 
 export const updatePassword = async (newPassword) => {
@@ -148,6 +257,36 @@ export const applyInitialTheme = () => {
 // Initialize the database tables we'll need
 export const initializeDatabase = async () => {
   try {
+    // Check if user_profiles table exists or create it
+    const { error: profilesError } = await supabase.rpc('create_profiles_table_if_not_exists');
+    
+    if (profilesError) {
+      console.error('Error creating user_profiles table:', profilesError);
+      
+      // Fallback method: Try to select from the user_profiles table
+      const { data: profilesData, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .limit(1);
+        
+      if (checkError) {
+        // If table doesn't exist, create it
+        const { error: createError } = await supabase.query(`
+          CREATE TABLE IF NOT EXISTS user_profiles (
+            id UUID PRIMARY KEY REFERENCES auth.users(id),
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+        `);
+        
+        if (createError) {
+          console.error('Error creating user_profiles table:', createError);
+        }
+      }
+    }
+
     // Check if categories table exists by trying to select from it
     const { data: categoryData, error: categoriesError } = await supabase
       .from('categories')
@@ -174,5 +313,30 @@ export const initializeDatabase = async () => {
   } catch (error) {
     console.error('Error in database initialization:', error);
     return { categoriesError: error, todosError: error };
+  }
+};
+
+// Function to create or update user profile after registration
+export const createUserProfile = async (user) => {
+  if (!user) return { error: new Error('No user data provided') };
+  
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .insert([
+        {
+          id: user.id,
+          username: user.user_metadata.username,
+          email: user.email
+        }
+      ])
+      .select();
+      
+    if (error) throw error;
+    
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+    return { data: null, error };
   }
 };
