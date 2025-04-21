@@ -46,6 +46,13 @@ const Dashboard = () => {
     document.body.setAttribute('data-theme', theme);
   }, []);
 
+  useEffect(() => {
+    // Redirect to login if user is not authenticated
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   const categoryIds = categories.map(category => category.id);
   
   // Get user initials for avatar
@@ -67,8 +74,8 @@ const Dashboard = () => {
       // Clear any stored session data in localStorage
       localStorage.removeItem('supabase.auth.token');
       
-      // Force a page reload to ensure all state is cleared
-      window.location.href = '/login';
+      // Navigate to login page
+      navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }
