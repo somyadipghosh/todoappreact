@@ -107,8 +107,8 @@ export const resetPassword = async (email) => {
 
 // Theme management with transition effect
 export const saveThemePreference = (theme) => {
-  // Add a class to briefly prevent transitions during initial theme load
-  document.body.classList.add('theme-transition-active');
+  // Add transitioning class to html for animation
+  document.documentElement.classList.add('theme-transitioning');
   
   // Store the theme preference in localStorage
   localStorage.setItem('theme', theme);
@@ -116,13 +116,10 @@ export const saveThemePreference = (theme) => {
   // Apply the theme to the document
   document.body.setAttribute('data-theme', theme);
   
-  // Force a repaint to ensure transitions work correctly
-  const _ = document.body.offsetHeight;
-  
-  // Remove the preventing class to allow transitions to occur
-  requestAnimationFrame(() => {
-    document.body.classList.remove('theme-transition-active');
-  });
+  // Remove transitioning class after animation completes
+  setTimeout(() => {
+    document.documentElement.classList.remove('theme-transitioning');
+  }, 500); // Match this timing with CSS animation duration
 };
 
 export const getThemePreference = () => {
@@ -132,14 +129,20 @@ export const getThemePreference = () => {
 // Apply theme on initial load without transition
 export const applyInitialTheme = () => {
   const theme = getThemePreference();
-  // Apply without transition on initial load
-  document.body.classList.add('theme-transition-active');
+  
+  // Temporarily add a class to prevent transitions during initial load
+  document.body.classList.add('theme-transition-disable');
+  
+  // Apply theme
   document.body.setAttribute('data-theme', theme);
   
-  // Remove transition prevention class after short delay
-  setTimeout(() => {
-    document.body.classList.remove('theme-transition-active');
-  }, 50);
+  // Force a repaint to ensure no transitions occur initially
+  const _ = document.body.offsetHeight;
+  
+  // Remove the preventing class to enable transitions afterward
+  requestAnimationFrame(() => {
+    document.body.classList.remove('theme-transition-disable');
+  });
 };
 
 // Initialize the database tables we'll need

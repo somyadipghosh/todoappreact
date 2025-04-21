@@ -47,6 +47,30 @@
   --text-secondary: #4a5568;  /* Darker secondary text */
 }
 
+/* Prevent transitions during theme toggle */
+.theme-transition-disable * {
+  transition: none !important;
+}
+
+/* Apply fade animation for theme transition */
+body {
+  transition: background-color 0.5s ease;
+}
+
+/* Global theme transition for all elements */
+html.theme-transitioning {
+  animation: themeTransition 0.5s ease forwards;
+}
+
+@keyframes themeTransition {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Improve light mode cards */
 [data-theme="light"] .default-column,
 [data-theme="light"] .category-card,
