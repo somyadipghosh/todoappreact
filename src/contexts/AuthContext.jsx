@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import { supabase, getCurrentUser } from '../lib/supabase';
+import { supabase, getCurrentUser, signOut } from '../lib/supabase';
 
 // Create a mock user for demo purposes
 const MOCK_USER = {
@@ -17,6 +17,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [useMockAuth, setUseMockAuth] = useState(false);
+
+  // Custom logout function to ensure the context is updated
+  const logout = async () => {
+    try {
+      const { error } = await signOut();
+      if (error) throw error;
+      
+      // Explicitly update the user state
+      setUser(null);
+      setUseMockAuth(false);
+      return { error: null };
+    } catch (error) {
+      console.error('Error during logout:', error);
+      return { error };
+    }
+  };
 
   useEffect(() => {
     let isSubscribed = true;
@@ -112,6 +128,7 @@ export function AuthProvider({ children }) {
     authError,
     useMockAuth,
     isAuthenticated: !!user,
+    logout, // Add logout to the context value
   };
 
   return (
@@ -127,4 +144,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}

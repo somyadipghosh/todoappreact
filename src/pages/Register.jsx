@@ -13,6 +13,7 @@ const Register = () => {
     confirmPassword: ''
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [checkingUnique, setCheckingUnique] = useState(false);
 
@@ -88,6 +89,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -110,7 +112,7 @@ const Register = () => {
       }
       
       // Proceed with signup if credentials are unique
-      const { data, error } = await signUp({
+      const { data, error, message } = await signUp({
         email: formData.email,
         password: formData.password,
         username: formData.username
@@ -127,10 +129,15 @@ const Register = () => {
         }
       }
       
-      navigate('/login', { 
-        state: { 
-          message: 'Registration successful! Please check your email to confirm your account.' 
-        } 
+      // Display success message on the registration page instead of redirecting
+      setSuccess(message || "Registration successful! Please check your email to confirm your account. If you don't see the email, please check your spam folder.");
+      
+      // Clear form data
+      setFormData({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
       });
     } catch (error) {
       console.error('Error signing up:', error);
@@ -161,97 +168,114 @@ const Register = () => {
           </div>
         )}
         
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">Username</label>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              required
-              placeholder="yourname"
-              value={formData.username}
-              onChange={handleChange}
-            />
+        {success && (
+          <div className="success-container">
+            {success}
+            <div className="mt-4">
+              <Link to="/login" className="font-medium text-primary hover:text-primary-hover transition-colors">
+                Go to login page
+              </Link>
+            </div>
           </div>
-          
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Email address</label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              showToggle
-            />
-            <p className="text-xs text-secondary mt-1">
-              Must be at least 6 characters long.
-            </p>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              showToggle
-            />
-          </div>
+        )}
+        
+        {!success && (
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username" className="form-label">Username</label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                placeholder="yourname"
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Email address</label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="name@example.com"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">Password</label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                showToggle
+              />
+              <p className="text-xs text-secondary mt-1">
+                Must be at least 6 characters long.
+              </p>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                showToggle
+              />
+            </div>
 
-          <Button
-            type="submit"
-            className="btn-block mt-4"
-            disabled={loading || checkingUnique}
-          >
-            {loading || checkingUnique ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {checkingUnique ? 'Checking...' : 'Signing up...'}
-              </>
-            ) : (
-              'Sign up'
-            )}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              className="btn-block mt-4"
+              disabled={loading || checkingUnique}
+            >
+              {loading || checkingUnique ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {checkingUnique ? 'Checking...' : 'Signing up...'}
+                </>
+              ) : (
+                'Sign up'
+              )}
+            </Button>
+          </form>
+        )}
         
-        <div className="divider">
-          <span className="text-sm text-secondary">or</span>
-        </div>
-        
-        <p className="text-center text-sm text-foreground">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-primary hover:text-primary-hover transition-colors">
-            Sign in
-          </Link>
-        </p>
+        {!success && (
+          <>
+            <div className="divider">
+              <span className="text-sm text-secondary">or</span>
+            </div>
+            
+            <p className="text-center text-sm text-foreground">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-primary hover:text-primary-hover transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

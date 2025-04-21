@@ -165,7 +165,12 @@ const Settings = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/login');
+      
+      // Clear any stored session data in localStorage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Force a page reload to ensure all state is cleared
+      window.location.href = '/login';
     } catch (error) {
       console.error('Error signing out:', error);
     }

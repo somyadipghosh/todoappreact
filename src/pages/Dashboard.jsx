@@ -25,7 +25,7 @@ import {
 } from '@dnd-kit/sortable';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { 
     categories, 
@@ -58,13 +58,17 @@ const Dashboard = () => {
     return 'U';
   };
 
-  // Handle logout
+  // Handle logout - updated to ensure complete logout before navigation
   const handleLogout = async () => {
     try {
-      // Import signOut from supabase
-      const { signOut } = await import('../lib/supabase');
-      await signOut();
-      navigate('/login');
+      // Call logout and wait for it to complete
+      await logout();
+      
+      // Clear any stored session data in localStorage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Force a page reload to ensure all state is cleared
+      window.location.href = '/login';
     } catch (error) {
       console.error('Error signing out:', error);
     }

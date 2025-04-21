@@ -9,12 +9,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-// Create and export the Supabase client
+// Create and export the Supabase client with improved auth configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'  // Use PKCE flow for better security and reliability
   }
 });
 
@@ -29,6 +30,9 @@ export const signUp = async ({ email, password, username }) => {
         data: {
           username,
         },
+        emailRedirectTo: `${window.location.origin}/auth-callback`,
+        // Explicitly set email confirmation to true
+        emailConfirm: true
       },
     });
     
@@ -53,7 +57,12 @@ export const signUp = async ({ email, password, username }) => {
       }
     }
     
-    return { data, error: null };
+    // Return a more descriptive message about email confirmation
+    return { 
+      data, 
+      error: null, 
+      message: "Registration successful! Please check your email for a confirmation link. If you don't see it, please check your spam folder."
+    };
   } catch (err) {
     console.error('Error during signup:', err);
     return { data: null, error: err };
