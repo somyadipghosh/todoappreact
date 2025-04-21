@@ -21,12 +21,23 @@ export function AuthProvider({ children }) {
   // Custom logout function to ensure the context is updated
   const logout = async () => {
     try {
+      // Clear local storage first
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('user');
+      
+      // Sign out from Supabase
       const { error } = await signOut();
       if (error) throw error;
       
       // Explicitly update the user state
       setUser(null);
       setUseMockAuth(false);
+      setAuthError(null);
+      
+      // Clear any session cookies
+      document.cookie = 'sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'sb-refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
       return { error: null };
     } catch (error) {
       console.error('Error during logout:', error);

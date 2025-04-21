@@ -29,6 +29,7 @@ export const signUp = async ({ email, password, username }) => {
         data: {
           username,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`
       },
     });
     
@@ -42,7 +43,9 @@ export const signUp = async ({ email, password, username }) => {
           {
             id: data.user.id,
             username: username,
-            email: email
+            email: email,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         ]);
         
