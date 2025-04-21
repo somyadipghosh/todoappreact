@@ -9,6 +9,7 @@
   --card-bg: #ffffff;
   --card-bg-hover: #f7fafc;
   --primary: #7C5DFA;
+  --primary-light: rgba(124, 93, 250, 0.1); /* Added missing primary-light variable */
   --primary-transparent: rgba(124, 93, 250, 0.2);
   --success: #10B981;
   --error: #EF4444;
@@ -16,6 +17,8 @@
   --border-radius-lg: 0.75rem;
   --border-radius-sm: 0.25rem;
   --background-alt: #f7fafc;  /* Adding for light mode inputs */
+  /* Enhanced theme transition to include more properties */
+  --theme-transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* For dark mode */
@@ -27,8 +30,21 @@
   --card-bg: #1f2937;
   --card-bg-hover: #2d3748;
   --background-alt: #242c3d;
+  --primary-light: rgba(146, 119, 255, 0.1); /* Added missing primary-light variable */
   --primary-transparent: rgba(146, 119, 255, 0.2);
   --primary: #9277FF;
+}
+
+/* Light mode with blue background */
+[data-theme="light"] {
+  --background: #edf2fb;  /* Light blue background */
+  --card-bg: #e2eafc;     /* Light blue card background */
+  --card-bg-hover: #d7e3fc;  /* Slightly darker blue on hover */
+  --background-alt: #e2eafc;  /* Light blue for inputs */
+  --border: #c1d3fe;      /* Lighter blue border */
+  --primary-light: rgba(124, 93, 250, 0.1); /* Added missing primary-light variable */
+  --foreground: #1a202c;  /* Dark text color */
+  --text-secondary: #4a5568;  /* Darker secondary text */
 }
 
 /* Improve light mode cards */
@@ -38,9 +54,38 @@
 [data-theme="light"] .todo-item {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
+  background-color: var(--card-bg);
 }
 
-/* Fix light mode hover effects */
+/* Fix add task buttons in light mode */
+[data-theme="light"] .add-todo-button {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: 1px dashed var(--border);
+}
+
+[data-theme="light"] .add-todo-button:hover {
+  background-color: rgba(124, 93, 250, 0.2);
+  border-color: var(--primary);
+}
+
+[data-theme="light"] .category-card > button {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-top: 1px solid var(--border);
+}
+
+[data-theme="light"] .category-card > button:hover {
+  background-color: rgba(124, 93, 250, 0.2);
+}
+
+/* Improve light mode header */
+[data-theme="light"] .dashboard-header {
+  background-color: #ffffff;  /* Keep header white for contrast */
+  border-bottom: 1px solid var(--border);
+}
+
+/* Light mode hover effects with blue tints */
 [data-theme="light"] .todo-item:hover,
 [data-theme="light"] .header-nav-link:hover,
 [data-theme="light"] .category-drag-handle:hover,
@@ -49,9 +94,84 @@
   color: var(--foreground);
 }
 
+/* Fix light mode navbar text colors */
+[data-theme="light"] .dashboard-logo {
+  color: #000000;
+}
+
+[data-theme="light"] .header-nav-link {
+  color: #1a202c;
+}
+
+[data-theme="light"] .header-nav-link:hover {
+  color: #000000; /* Make text black when hovering */
+  background-color: var(--card-bg-hover);
+}
+
+/* Fix dashboard and categories headings in light mode */
+[data-theme="light"] .dashboard-title {
+  color: #000000;
+}
+
+[data-theme="light"] .categories-title {
+  color: #000000;
+}
+
+[data-theme="light"] .user-name {
+  color: #1a202c;
+}
+
+[data-theme="light"] .user-email {
+  color: #4a5568;
+}
+
+[data-theme="light"] .todo-text {
+  color: #1a202c;
+}
+
 /* Fix completed todos in light mode */
 [data-theme="light"] .todo-item.completed {
-  background-color: rgba(240, 240, 245, 0.6);
+  background-color: rgba(225, 232, 248, 0.6);
+}
+
+/* Override empty state colors in light mode */
+[data-theme="light"] .empty-state {
+  background-color: rgba(213, 230, 254, 0.5);
+  border: 1px dashed #b6ccfe;
+}
+
+/* Color picker in light mode */
+[data-theme="light"] .color-picker {
+  background-color: #ffffff;
+}
+
+/* Apply theme transitions to relevant elements */
+.dashboard,
+.dashboard-header, 
+.dashboard-content,
+.default-column,
+.category-card,
+.todo-item,
+.todo-text,
+.todo-checkbox,
+.user-menu,
+.empty-state,
+.add-form,
+.task-input,
+.category-name-input,
+.todo-edit-input,
+.action-button,
+.header-nav-link,
+.dashboard-logo,
+.dashboard-title,
+.categories-title,
+.user-name,
+.user-email,
+.form-title,
+.form-label,
+.empty-state-text,
+.color-picker {
+  transition: var(--theme-transition);
 }
 
 /* Dashboard layout */
@@ -665,7 +785,7 @@
 
 .todo-item.completed {
   opacity: 0.75;
-  background-color: rgba(240, 240, 245, 0.6);
+  background-color: rgba(225, 232, 248, 0.6);
 }
 
 .todo-item.completed::before {

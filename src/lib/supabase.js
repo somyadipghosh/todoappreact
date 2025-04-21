@@ -105,13 +105,41 @@ export const resetPassword = async (email) => {
   return { data, error };
 };
 
-// Theme management (store theme preference in local storage)
+// Theme management with transition effect
 export const saveThemePreference = (theme) => {
+  // Add a class to briefly prevent transitions during initial theme load
+  document.body.classList.add('theme-transition-active');
+  
+  // Store the theme preference in localStorage
   localStorage.setItem('theme', theme);
+  
+  // Apply the theme to the document
+  document.body.setAttribute('data-theme', theme);
+  
+  // Force a repaint to ensure transitions work correctly
+  const _ = document.body.offsetHeight;
+  
+  // Remove the preventing class to allow transitions to occur
+  requestAnimationFrame(() => {
+    document.body.classList.remove('theme-transition-active');
+  });
 };
 
 export const getThemePreference = () => {
   return localStorage.getItem('theme') || 'light'; // Default to light theme
+};
+
+// Apply theme on initial load without transition
+export const applyInitialTheme = () => {
+  const theme = getThemePreference();
+  // Apply without transition on initial load
+  document.body.classList.add('theme-transition-active');
+  document.body.setAttribute('data-theme', theme);
+  
+  // Remove transition prevention class after short delay
+  setTimeout(() => {
+    document.body.classList.remove('theme-transition-active');
+  }, 50);
 };
 
 // Initialize the database tables we'll need

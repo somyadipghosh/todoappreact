@@ -1,5 +1,27 @@
 /* Settings.css - Replacement for Tailwind CSS */
 
+/* Fix light mode placeholder visibility */
+[data-theme="light"] input::placeholder {
+  color: #64748b; /* Slate-500 - visible but not too dark */
+  opacity: 1; /* Ensure full visibility */
+}
+
+/* Ensure visibility for password inputs specifically */
+[data-theme="light"] input[type="password"]::placeholder {
+  color: #64748b; /* Slate-500 */
+  opacity: 1;
+}
+
+[data-theme="light"] .input::placeholder {
+  color: #64748b; /* Slate-500 */
+  opacity: 1;
+}
+
+/* Fix dark mode text visibility for theme options */
+[data-theme="dark"] .theme-option span {
+  color: #ffffff; /* White text for better visibility in dark mode */
+}
+
 /* Dashboard layout */
 .dashboard {
   min-height: 100vh;
@@ -395,21 +417,56 @@ button[variant="danger"]:hover {
 
 /* Light mode theme styles - Fixed for clean white background */
 [data-theme="light"] {
-  --bg-color: #ffffff;  /* Changed to pure white background */
+  --bg-color: #edf2fb;  /* Light blue background */
   --bg-color-dark: #e0e2e8;
   --text-color: #1a202c;  /* Darker text for better contrast */
   --text-secondary: #4a5568;  /* Darker secondary text for better readability */
-  --border-color: #e2e8f0;  /* Light border that works with white background */
-  --card-bg: #ffffff;
-  --card-bg-hover: #f7fafc;
+  --border-color: #c1d3fe;  /* Light blue border */
+  --card-bg: #e2eafc;  /* Light blue card background */
+  --card-bg-hover: #d7e3fc;  /* Slightly darker blue on hover */
   --color-danger: #dc2626;
   --primary-color: #7C5DFA;
   --primary-rgb: 124, 93, 250;
+  /* Theme transition */
+  --theme-transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* Improve light mode hover effects */
-[data-theme="light"] .sidebar-nav-item:not(.active):hover {
-  background-color: #f7fafc;
+/* Apply theme transitions to all relevant elements */
+body,
+.dashboard,
+.dashboard-header,
+.dashboard-content,
+.settings-card,
+.settings-sidebar,
+.sidebar-nav-item,
+.theme-preview,
+.theme-option,
+.danger-zone,
+button,
+input {
+  transition: var(--theme-transition);
+}
+
+/* Fix text visibility in Settings page for light mode */
+[data-theme="light"] .settings-card h2,
+[data-theme="light"] .settings-card h3,
+[data-theme="light"] .theme-switcher h3,
+[data-theme="light"] .settings-form label,
+[data-theme="light"] .form-group label,
+[data-theme="light"] .toggle-switch span {
+  color: #000000; /* Make headings and labels black for maximum visibility */
+}
+
+[data-theme="light"] .form-label {
+  color: #1a202c; /* Darker text for form labels */
+}
+
+[data-theme="light"] .settings-sidebar {
+  background-color: #ffffff; /* White background for sidebar */
+}
+
+[data-theme="light"] .sidebar-nav-item:not(.active) {
+  color: #1a202c; /* Ensure sidebar navigation items are visible */
 }
 
 /* Improve light mode card visibility */

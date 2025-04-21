@@ -1,4 +1,4 @@
-/* Dark theme base styles */
+/* Theme variables */
 :root {
   /* Core colors */
   --primary: #7c5dfa;
@@ -6,7 +6,20 @@
   --primary-light: rgba(124, 93, 250, 0.1);
   --primary-transparent: rgba(124, 93, 250, 0.2);
   
-  /* Background colors */
+  /* Background colors for light mode */
+  --light-background: #f9fafb;
+  --light-background-alt: #ffffff;
+  --light-card-bg: #ffffff;
+  --light-card-bg-hover: #f3f4f6;
+  --light-soft-bg: rgba(0, 0, 0, 0.03);
+  --light-soft-bg-hover: rgba(0, 0, 0, 0.05);
+  --light-border: #e5e7eb;
+  --light-border-color: #e5e7eb;
+  --light-text: #1f2937;
+  --light-text-secondary: #6b7280;
+  --light-foreground: #111827;
+  
+  /* Background colors for dark mode */
   --background: #141625;
   --background-alt: #1e2139;
   --card-bg: #1e2139;
@@ -42,6 +55,111 @@
   
   /* Fonts */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  
+  /* Theme transition */
+  --theme-transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Prevent transitions during theme change */
+.theme-transition-active * {
+  transition: none !important;
+}
+
+/* Light mode styles */
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: var(--light-background);
+    --background-alt: var(--light-background-alt);
+    --card-bg: var(--light-card-bg);
+    --card-bg-hover: var(--light-card-bg-hover);
+    --soft-bg: var(--light-soft-bg);
+    --soft-bg-hover: var(--light-soft-bg-hover);
+    --border: var(--light-border);
+    --border-color: var(--light-border-color);
+    --text: var(--light-text);
+    --text-color: var(--light-text);
+    --text-secondary: var(--light-text-secondary);
+    --foreground: var(--light-foreground);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Fix category and default column text visibility */
+  .category-title {
+    color: var(--foreground);
+  }
+  
+  .category-title .color-dot {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .default-column-title {
+    color: var(--foreground);
+  }
+  
+  .default-column-title .color-dot {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Fix todo items appearance */
+  .todo-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+  }
+  
+  .todo-item:hover {
+    background-color: var(--card-bg-hover);
+  }
+  
+  .todo-text {
+    color: var(--foreground);
+  }
+  
+  .todo-text.completed {
+    color: var(--text-secondary);
+  }
+  
+  .action-button {
+    color: var(--text-secondary);
+  }
+  
+  .action-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--foreground);
+  }
+  
+  .todo-checkbox {
+    background-color: var(--card-bg);
+    border: 2px solid var(--text-secondary);
+  }
+  
+  /* Fix add task button */
+  .add-todo-button {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+  
+  .category-card > button {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+  
+  /* Fix empty state */
+  .empty-state {
+    background-color: rgba(0, 0, 0, 0.03);
+    border: 1px dashed rgba(0, 0, 0, 0.1);
+  }
+  
+  .empty-state-text {
+    color: var(--text-secondary);
+  }
+  
+  /* Fix category content background */
+  .category-content {
+    background-color: var(--card-bg);
+  }
 }
 
 body {
@@ -54,6 +172,23 @@ body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: var(--theme-transition);
+}
+
+/* Apply theme transitions to common elements */
+h1, h2, h3, h4, h5, h6,
+.dashboard-header, 
+.dashboard-content,
+.settings-card,
+.category-card,
+.todo-item,
+.default-column,
+.user-menu,
+.empty-state,
+.add-form,
+button,
+input {
+  transition: var(--theme-transition);
 }
 
 /* Typography */
@@ -330,7 +465,7 @@ a:hover {
   margin-bottom: 1rem;
 }
 
-/* Dashboard specific */
+/* Dashboard specific - base styles only */
 .dashboard {
   min-height: 100vh;
   background-color: var(--background);
@@ -338,35 +473,7 @@ a:hover {
   flex-direction: column;
 }
 
-.dashboard-header {
-  background-color: var(--card-bg);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1.25rem;
-  height: var(--header-height);
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: var(--shadow-soft);
-}
-
-.dashboard-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 1.125rem;
-  color: var(--foreground);
-  letter-spacing: -0.025em;
-}
-
-.dashboard-logo svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--primary);
-}
-
+/* Content styles (not header) */
 .dashboard-content {
   flex: 1;
   padding: 1.25rem;
@@ -652,7 +759,7 @@ a:hover {
   user-select: none;
   font-size: 0.95rem;
   line-height: 1.5;
-  color: var(--text);
+  color: var(--foreground);
   transition: color 0.2s ease;
   width: 100%;
   overflow: hidden;
@@ -751,11 +858,12 @@ a:hover {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background-color: rgba(37, 41, 69, 0.5);
+  background-color: rgba(0, 0, 0, 0.03);
   border-radius: var(--border-radius);
   text-align: center;
   margin: 0.5rem 0;
   min-height: 100px;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .empty-state-text {
@@ -779,48 +887,6 @@ a:hover {
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-.user-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: white;
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  cursor: pointer;
-  padding: 0.375rem 0.5rem;
-  border-radius: 2rem;
-  transition: all 0.15s ease-in-out;
-  background-color: var(--card-bg-hover);
-}
-
-.user-menu:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.user-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
-  margin-bottom: 0.125rem;
-}
-
-.user-email {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
 }
 
 .add-form {
@@ -1053,10 +1119,6 @@ a:hover {
     min-width: unset;
     width: 100%;
   }
-
-  .dashboard-header {
-    padding: 0 0.75rem;
-  }
   
   .dashboard-title {
     font-size: 1.25rem;
@@ -1117,56 +1179,6 @@ a:hover {
 
   .categories-list {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-}
-
-/* Ensure mobile menus work well */
-@media (max-width: 768px) {
-  .user-menu .user-name {
-    display: none;
-  }
-  
-  .user-menu .user-email {
-    display: none;
-  }
-  
-  .dashboard-logo span {
-    display: none;
-  }
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 640px) {
-  .auth-card {
-    padding: 1.5rem;
-  }
-  
-  .input {
-    padding: 0.625rem 0.875rem;
-  }
-  
-  .btn {
-    padding: 0.5rem 1rem;
-  }
-
-  .dashboard-content {
-    padding: 1rem 0.75rem;
-  }
-
-  .category-card {
-    min-width: 260px;
-  }
-
-  .dashboard-header {
-    padding: 0 0.75rem;
-  }
-  
-  .dashboard-title {
-    font-size: 1.25rem;
-  }
-  
-  .categories-title {
-    font-size: 1.125rem;
   }
 }
 
@@ -1275,49 +1287,6 @@ form.p-4.border-t input:focus {
 }
 
 /* Default column/list styling */
-.default-column {
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  max-width: 500px;
-  margin: 0 auto;
-  box-shadow: var(--shadow);
-  border: none;
-  position: relative;
-}
-
-.default-column-header {
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--card-bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.default-column-title {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--foreground);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.default-column-content {
-  padding: 0.75rem;
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  max-height: 350px;
-}
-
-/* Modern Default Column Styling */
 .default-column {
   background-color: var(--card-bg);
   border-radius: var(--border-radius-lg);
