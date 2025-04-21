@@ -9,7 +9,6 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
-import AuthRedirect from './components/AuthRedirect';
 import { initializeDatabase } from './lib/supabase';
 
 function ErrorBoundary() {
@@ -140,9 +139,6 @@ function App() {
           { path: 'register', element: <Register /> },
           { path: 'forgot-password', element: <ForgotPassword /> },
           { path: 'reset-password', element: <ResetPassword /> },
-          
-          // Auth callback route
-          { path: 'auth-callback', element: <AuthRedirect /> },
           
           // Protected routes
           { 
